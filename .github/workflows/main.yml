@@ -1,4 +1,4 @@
-name: Build Android APK
+name: Build Agent and Admin APKs
 
 on:
   push:
@@ -30,28 +30,47 @@ jobs:
           npm install --legacy-peer-deps
           npm run build
 
-      - name: Setup Capacitor & Generate JSON Config
+      - name: Install Capacitor
         run: |
           npm install @capacitor/core @capacitor/cli @capacitor/android --legacy-peer-deps
           rm -f capacitor.config.ts
+
+      # --- 1. AGENT APK ---
+      - name: Build Agent APK
+        run: |
           cat << 'EOF' > capacitor.config.json
           {
-            "appId": "com.bhachat.samuah",
-            "appName": "Bhachat Samuah",
+            "appId": "com.bhachat.agent",
+            "appName": "Bhachat Agent",
             "webDir": "dist"
           }
           EOF
           npx cap add android
           npx cap sync android
+          cd android && chmod +x gradlew && ./gradlew assembleDebug
+          cd ..
+          mkdir -p apks
+          cp android/app/build/outputs/apk/debug/app-debug.apk apks/bhachat-agent.apk
 
-      - name: Build Debug APK
+      # --- 2. ADMIN APK ---
+      - name: Build Admin APK
         run: |
-          cd android
-          chmod +x gradlew
-          ./gradlew assembleDebug
+          rm -rf android
+          cat << 'EOF' > capacitor.config.json
+          {
+            "appId": "com.bhachat.admin",
+            "appName": "Bhachat Admin",
+            "webDir": "dist"
+          }
+          EOF
+          npx cap add android
+          npx cap sync android
+          cd android && chmod +x gradlew && ./gradlew assembleDebug
+          cd ..
+          cp android/app/build/outputs/apk/debug/app-debug.apk apks/bhachat-admin.apk
 
-      - name: Upload APK
+      - name: Upload Agent & Admin APKs
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: agent-and-admin-apks
+          path: apks/*.apk
