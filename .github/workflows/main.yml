@@ -1,4 +1,4 @@
-name: Build Web App
+name: Build Android APK
 
 on:
   push:
@@ -14,12 +14,37 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: Install dependencies and build
+      - name: Install dependencies and build web app
         run: |
           npm install --legacy-peer-deps
           npm run build
+
+      - name: Initialize Capacitor and Add Android
+        run: |
+          npm install @capacitor/core @capacitor/cli @capacitor/android --legacy-peer-deps
+          npx cap init "Bachat Samuah" "com.bachatsamuah.app" --web-dir=dist
+          npx cap add android
+          npx cap sync android
+
+      - name: Build Debug APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: bachat-samuah-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
