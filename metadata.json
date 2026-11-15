@@ -1,0 +1,6 @@
+{
+  "name": "Asha Management (आशा मैनेजमेंट)",
+  "description": "Offline-first bilingual maternal & child health register, incentive tracker, PWA, and Android APK project builder for ASHA workers.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
