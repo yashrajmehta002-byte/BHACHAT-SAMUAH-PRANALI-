@@ -1,4 +1,4 @@
-name: Build Agent and Admin APKs
+name: Build Single App APK
 
 on:
   push:
@@ -35,13 +35,12 @@ jobs:
           npm install @capacitor/core @capacitor/cli @capacitor/android --legacy-peer-deps
           rm -f capacitor.config.ts
 
-      # --- 1. AGENT APK ---
-      - name: Build Agent APK
+      - name: Build APK
         run: |
           cat << 'EOF' > capacitor.config.json
           {
-            "appId": "com.bhachat.agent",
-            "appName": "Bhachat Agent",
+            "appId": "com.bhachat.app",
+            "appName": "Bhachat",
             "webDir": "dist"
           }
           EOF
@@ -62,39 +61,10 @@ jobs:
           cd android && chmod +x gradlew && ./gradlew assembleDebug
           cd ..
           mkdir -p apks
-          cp android/app/build/outputs/apk/debug/app-debug.apk apks/bhachat-agent.apk
+          cp android/app/build/outputs/apk/debug/app-debug.apk apks/bhachat.apk
 
-      # --- 2. ADMIN APK ---
-      - name: Build Admin APK
-        run: |
-          rm -rf android
-          cat << 'EOF' > capacitor.config.json
-          {
-            "appId": "com.bhachat.admin",
-            "appName": "Bhachat Admin",
-            "webDir": "dist"
-          }
-          EOF
-          npx cap add android
-          npx cap sync android
-          cat << 'EOF' >> android/app/build.gradle
-          dependencies {
-              implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.22"))
-          }
-          configurations.all {
-              resolutionStrategy {
-                  force 'org.jetbrains.kotlin:kotlin-stdlib:1.8.22'
-                  force 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22'
-                  force 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22'
-              }
-          }
-          EOF
-          cd android && chmod +x gradlew && ./gradlew assembleDebug
-          cd ..
-          cp android/app/build/outputs/apk/debug/app-debug.apk apks/bhachat-admin.apk
-
-      - name: Upload Agent & Admin APKs
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: agent-and-admin-apks
+          name: bhachat-apk
           path: apks/*.apk
