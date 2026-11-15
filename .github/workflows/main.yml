@@ -47,6 +47,18 @@ jobs:
           EOF
           npx cap add android
           npx cap sync android
+          cat << 'EOF' >> android/app/build.gradle
+          dependencies {
+              implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.22"))
+          }
+          configurations.all {
+              resolutionStrategy {
+                  force 'org.jetbrains.kotlin:kotlin-stdlib:1.8.22'
+                  force 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22'
+                  force 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22'
+              }
+          }
+          EOF
           cd android && chmod +x gradlew && ./gradlew assembleDebug
           cd ..
           mkdir -p apks
@@ -65,6 +77,18 @@ jobs:
           EOF
           npx cap add android
           npx cap sync android
+          cat << 'EOF' >> android/app/build.gradle
+          dependencies {
+              implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.22"))
+          }
+          configurations.all {
+              resolutionStrategy {
+                  force 'org.jetbrains.kotlin:kotlin-stdlib:1.8.22'
+                  force 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22'
+                  force 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22'
+              }
+          }
+          EOF
           cd android && chmod +x gradlew && ./gradlew assembleDebug
           cd ..
           cp android/app/build/outputs/apk/debug/app-debug.apk apks/bhachat-admin.apk
